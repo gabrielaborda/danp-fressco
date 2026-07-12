@@ -1,36 +1,75 @@
-# Web Administrador — Fressco
+# React + TypeScript + Vite
 
-Panel web donde el administrador gestiona productos, usuarios, ofertas y pedidos.
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-## Stack
-- (Definir: React / Vue / HTML+JS)
-- Consumo de la API REST del backend
+Currently, two official plugins are available:
 
-## Módulos principales
-- Productos
-- Usuarios
-- Ofertas
-- Pedidos
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
 
-## Cómo correr localmente   
-npm install
-npm run dev
+## React Compiler
 
-## Estado
-🚧 En construcción.
-EOF
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-cat > bd/README.md << 'EOF'
-# Base de Datos — Fressco
+## Expanding the ESLint configuration
 
-Contiene los scripts SQL y el diagrama del modelo relacional usado por el backend.
+If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
 
-## Contenido
-- `scripts/` → creación de tablas, datos de prueba (seeds)
-- `diagramas/` → diagrama entidad-relación (ERD)
+```js
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
 
-## Motor
-PostgreSQL / MySQL (definir cuál usará el equipo).
+      // Remove tseslint.configs.recommended and replace with this
+      tseslint.configs.recommendedTypeChecked,
+      // Alternatively, use this for stricter rules
+      tseslint.configs.strictTypeChecked,
+      // Optionally, add this for stylistic rules
+      tseslint.configs.stylisticTypeChecked,
 
-## Estado
-🚧 En construcción.
+      // Other configs...
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
+
+```
+
+You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+
+```js
+// eslint.config.js
+import reactX from 'eslint-plugin-react-x'
+import reactDom from 'eslint-plugin-react-dom'
+
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
+      // Enable lint rules for React
+      reactX.configs['recommended-typescript'],
+      // Enable lint rules for React DOM
+      reactDom.configs.recommended,
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
+
+```
