@@ -1,0 +1,45 @@
+# ===== General =====
+.DS_Store
+Thumbs.db
+*.log
+.env
+.env.local
+.vscode/
+.idea/
+
+# ===== Node.js (backend / web-admin) =====
+node_modules/
+dist/
+build/
+coverage/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.env*
+
+# ===== Android (app-android) =====
+*.iml
+.gradle/
+local.properties
+.cxx/
+captures/
+*.apk
+*.aab
+*.ap_
+*.dex
+app/build/
+build/
+.externalNativeBuild/
+.cache/
+/app-android/*/build/
+
+# ===== Base de datos =====
+*.sqlite
+*.sqlite3
+*.db
+
+# ===== Archivos temporales del sistema =====
+*.swp
+*.swo
+*~
