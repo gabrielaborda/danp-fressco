@@ -1,4 +1,4 @@
-package com.example.danpfressco.ui.screens.productos
+package com.example.danpfressco.ui.screens
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -7,10 +7,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
 @Composable
-fun ProductosScreen() {
+fun OfertasEspecialesScreen() {
     Scaffold { innerPadding ->
         Text(
-            text = "Productos",
+            text = "Ofertas Especiales",
             modifier = Modifier.padding(innerPadding)
         )
     }

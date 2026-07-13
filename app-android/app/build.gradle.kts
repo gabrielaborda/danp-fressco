@@ -33,7 +33,11 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+        isCoreLibraryDesugaringEnabled = true
     }
+
     buildFeatures {
         compose = true
     }
@@ -48,6 +52,8 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.material.icons.core)
+    implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.androidx.navigation.compose)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -60,4 +66,14 @@ dependencies {
     // Hilt DI
     implementation(libs.hilt.android)
     ksp(libs.hilt.android.compiler)
+    implementation(libs.androidx.hilt.navigation.compose)
+
+    // DataStore Preferences
+    implementation(libs.androidx.datastore.preferences)
+
+    // Coil Image Loading
+    implementation(libs.coil.compose)
+
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
+
 }

@@ -4,14 +4,14 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.danpfressco.ui.screens.carrito.CarritoScreen
-import com.example.danpfressco.ui.screens.formulariopedido.FormularioPedidoScreen
-import com.example.danpfressco.ui.screens.login.LoginScreen
-import com.example.danpfressco.ui.screens.mispedidos.MisPedidosScreen
-import com.example.danpfressco.ui.screens.ofertasespeciales.OfertasEspecialesScreen
-import com.example.danpfressco.ui.screens.principal.PrincipalScreen
-import com.example.danpfressco.ui.screens.productos.ProductosScreen
-import com.example.danpfressco.ui.screens.registro.RegistroScreen
+import com.example.danpfressco.ui.screens.CarritoScreen
+import com.example.danpfressco.ui.screens.FormularioPedidoScreen
+import com.example.danpfressco.ui.screens.LoginScreen
+import com.example.danpfressco.ui.screens.MisPedidosScreen
+import com.example.danpfressco.ui.screens.OfertasEspecialesScreen
+import com.example.danpfressco.ui.screens.PrincipalScreen
+import com.example.danpfressco.ui.screens.ProductosScreen
+import com.example.danpfressco.ui.screens.RegistroScreen
 
 @Composable
 fun FresscoNavGraph() {
@@ -21,8 +21,30 @@ fun FresscoNavGraph() {
         navController = navController,
         startDestination = Screen.Login.route
     ) {
-        composable(Screen.Login.route) { LoginScreen() }
-        composable(Screen.Registro.route) { RegistroScreen() }
+        composable(Screen.Login.route) {
+            LoginScreen(
+                onLoginSuccess = {
+                    navController.navigate(Screen.Principal.route) {
+                        popUpTo(Screen.Login.route) { inclusive = true }
+                    }
+                },
+                onNavigateToRegister = {
+                    navController.navigate(Screen.Registro.route)
+                }
+            )
+        }
+        composable(Screen.Registro.route) {
+            RegistroScreen(
+                onRegistroSuccess = {
+                    navController.navigate(Screen.Principal.route) {
+                        popUpTo(Screen.Login.route) { inclusive = true }
+                    }
+                },
+                onNavigateToLogin = {
+                    navController.popBackStack()
+                }
+            )
+        }
         composable(Screen.Principal.route) { PrincipalScreen() }
         composable(Screen.Productos.route) { ProductosScreen() }
         composable(Screen.Carrito.route) { CarritoScreen() }

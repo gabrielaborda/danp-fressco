@@ -1,4 +1,4 @@
-package com.example.danpfressco.ui.screens.mispedidos
+package com.example.danpfressco.ui.screens
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -7,10 +7,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
 @Composable
-fun MisPedidosScreen() {
+fun FormularioPedidoScreen() {
     Scaffold { innerPadding ->
         Text(
-            text = "Mis Pedidos",
+            text = "Formulario Pedido",
             modifier = Modifier.padding(innerPadding)
         )
     }
