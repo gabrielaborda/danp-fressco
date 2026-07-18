@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Entorno virtual
+.venv/
+venv/
+env/
+
+# Variables de entorno (¡NUNCA commitear!)
+.env
+
+# Base de datos SQLite local
+data/*.db
+data/*.sqlite
+
+# Alembic (no incluir la BD de versiones del sistema)
+alembic/__pycache__/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Cobertura de tests
+.coverage
+htmlcov/
+.pytest_cache/
