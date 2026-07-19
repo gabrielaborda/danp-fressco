@@ -3,6 +3,10 @@ package com.example.danpfressco.di
 import android.content.Context
 import com.example.danpfressco.data.repository.AuthRepository
 import com.example.danpfressco.data.repository.AuthRepositoryImpl
+import com.example.danpfressco.data.repository.CarritoRepository
+import com.example.danpfressco.data.repository.CarritoRepositoryImpl
+import com.example.danpfressco.data.repository.PedidoRepository
+import com.example.danpfressco.data.repository.PedidoRepositoryImpl
 import com.example.danpfressco.data.repository.ProductoRepository
 import com.example.danpfressco.data.repository.ProductoRepositoryImpl
 import com.example.danpfressco.data.session.SessionManager
@@ -36,5 +40,17 @@ object AppModule {
     @Singleton
     fun provideProductoRepository(): ProductoRepository {
         return ProductoRepositoryImpl()
+    }
+
+    @Provides
+    @Singleton
+    fun provideCarritoRepository(): CarritoRepository {
+        return CarritoRepositoryImpl()
+    }
+
+    @Provides
+    @Singleton
+    fun providePedidoRepository(): PedidoRepository {
+        return PedidoRepositoryImpl()
     }
 }

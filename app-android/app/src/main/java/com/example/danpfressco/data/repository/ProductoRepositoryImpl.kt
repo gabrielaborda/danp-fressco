@@ -121,4 +121,9 @@ class ProductoRepositoryImpl @Inject constructor() : ProductoRepository {
         delay(1000) // Simular latencia de red
         return Result.success(mockOfertas)
     }
+
+    override suspend fun obtenerOfertaPorId(loteId: String): Result<OfertaProducto?> {
+        delay(500) // Simular latencia de red
+        return Result.success(mockOfertas.find { it.lote.id == loteId })
+    }
 }
