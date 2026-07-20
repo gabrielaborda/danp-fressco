@@ -1,9 +1,57 @@
 @import "tailwindcss";
 
+@theme {
+    --color-primary: var(--primary);
+    --color-primary-container: var(--primary-container);
+    --color-secondary: var(--secondary);
+    --color-on-secondary: var(--on-secondary);
+    --color-secondary-container: var(--secondary-container);
+    --color-background: var(--background);
+    --color-surface: var(--surface);
+    --color-surface-variant: var(--surface-variant);
+    --color-text-primary: var(--text-primary);
+    --color-text-secondary: var(--text-secondary);
+    --color-border: var(--border);
+    --color-success: var(--success);
+    --color-warning: var(--warning);
+    --color-error: var(--error);
+    --color-info: var(--info);
+}
+
 :root {
-    --color-primary: #11101D;
-    --color-primary-dark: #11101D;
-    --color-primary-bond: #38d39f;
+    --primary: #668643;
+    --primary-container: #A3C45C;
+    --secondary: #FBAF47;
+    --on-secondary: #263238;
+    --secondary-container: #E4E79A;
+    --background: #FAFAF7;
+    --surface: #FFFFFF;
+    --surface-variant: #F8F9F5;
+    --text-primary: #263238;
+    --text-secondary: #607D8B;
+    --border: #E0E0E0;
+    --success: #7CB342;
+    --warning: #E6A23C;
+    --error: #D32F2F;
+    --info: #2196F3;
+}
+
+.dark {
+    --primary: #8AB05C;
+    --primary-container: #3E5425;
+    --secondary: #FCCC7B;
+    --on-secondary: #FAFAF7;
+    --secondary-container: #75500F;
+    --background: #11140E;
+    --surface: #181C15;
+    --surface-variant: #232A1F;
+    --text-primary: #EAEBE9;
+    --text-secondary: #9BA9B0;
+    --border: #353F2E;
+    --success: #88C44D;
+    --warning: #EAB25B;
+    --error: #E04E4E;
+    --info: #4AABF7;
 }
 
 @font-face {
