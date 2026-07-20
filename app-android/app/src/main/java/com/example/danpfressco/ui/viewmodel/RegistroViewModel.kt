@@ -5,7 +5,6 @@ import com.example.danpfressco.ui.state.RegistroUiState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.danpfressco.data.repository.AuthRepository
-import com.example.danpfressco.data.session.SessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,8 +15,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class RegistroViewModel @Inject constructor(
-    private val authRepository: AuthRepository,
-    private val sessionManager: SessionManager
+    private val authRepository: AuthRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(RegistroUiState())
@@ -43,6 +41,13 @@ class RegistroViewModel @Inject constructor(
         }
     }
 
+    fun onTelefonoChanged(telefono: String) {
+        _uiState.update { state ->
+            val telefonoError = if (telefono.isBlank()) "El teléfono no puede estar vacío" else null
+            state.copy(telefono = telefono, telefonoError = telefonoError, errorMessage = null)
+        }
+    }
+
     fun onPasswordChanged(password: String) {
         _uiState.update { state ->
             val passwordError = when {
@@ -64,17 +69,19 @@ class RegistroViewModel @Inject constructor(
             !currentState.email.matches(emailRegex) -> "Formato de correo no válido"
             else -> null
         }
+        val telefonoError = if (currentState.telefono.isBlank()) "El teléfono no puede estar vacío" else null
         val passwordError = when {
             currentState.password.isBlank() -> "La contraseña no puede estar vacía"
             currentState.password.length < 6 -> "La contraseña debe tener al menos 6 caracteres"
             else -> null
         }
 
-        if (nombreError != null || emailError != null || passwordError != null) {
+        if (nombreError != null || emailError != null || telefonoError != null || passwordError != null) {
             _uiState.update {
                 it.copy(
                     nombreError = nombreError,
                     emailError = emailError,
+                    telefonoError = telefonoError,
                     passwordError = passwordError
                 )
             }
@@ -87,12 +94,11 @@ class RegistroViewModel @Inject constructor(
             val result = authRepository.registrar(
                 nombre = currentState.nombre.trim(),
                 email = currentState.email.trim(),
-                password = currentState.password
+                password = currentState.password,
+                telefono = currentState.telefono.trim()
             )
             result.fold(
-                onSuccess = { usuario ->
-                    // Auto-login: guardar sesión igual que LoginViewModel
-                    sessionManager.saveSession(usuario)
+                onSuccess = { _ ->
                     _uiState.update { it.copy(isLoading = false, isSuccess = true) }
                 },
                 onFailure = { throwable ->

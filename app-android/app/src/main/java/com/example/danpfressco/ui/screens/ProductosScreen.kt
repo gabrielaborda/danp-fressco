@@ -178,7 +178,7 @@ fun ProductosScreen(
                                     color = MaterialTheme.colorScheme.primary
                                 )
                                 Text(
-                                    text = formatearPrecio(oferta.producto.precioOriginal),
+                                    text = formatearPrecio(oferta.lote.precioLote),
                                     style = MaterialTheme.typography.bodyLarge,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     textDecoration = TextDecoration.LineThrough

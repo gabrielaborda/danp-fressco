@@ -85,7 +85,7 @@ fun OfertaCard(oferta: OfertaProducto, onClick: () -> Unit = {}) {
                         color = MaterialTheme.colorScheme.primary
                     )
                     Text(
-                        text = formatearPrecio(oferta.producto.precioOriginal),
+                        text = formatearPrecio(oferta.lote.precioLote),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textDecoration = TextDecoration.LineThrough

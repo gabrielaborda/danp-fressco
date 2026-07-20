@@ -9,6 +9,8 @@ import com.example.danpfressco.data.repository.PedidoRepository
 import com.example.danpfressco.data.repository.PedidoRepositoryImpl
 import com.example.danpfressco.data.repository.ProductoRepository
 import com.example.danpfressco.data.repository.ProductoRepositoryImpl
+import com.example.danpfressco.data.remote.ApiService
+import com.example.danpfressco.data.remote.RetrofitClient
 import com.example.danpfressco.data.session.SessionManager
 import com.example.danpfressco.data.session.SessionManagerImpl
 import dagger.Module
@@ -32,14 +34,17 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideAuthRepository(): AuthRepository {
-        return AuthRepositoryImpl()
+    fun provideAuthRepository(
+        apiService: ApiService,
+        sessionManager: SessionManager
+    ): AuthRepository {
+        return AuthRepositoryImpl(apiService, sessionManager)
     }
 
     @Provides
     @Singleton
-    fun provideProductoRepository(): ProductoRepository {
-        return ProductoRepositoryImpl()
+    fun provideProductoRepository(apiService: ApiService): ProductoRepository {
+        return ProductoRepositoryImpl(apiService)
     }
 
     @Provides
@@ -53,4 +58,8 @@ object AppModule {
     fun providePedidoRepository(): PedidoRepository {
         return PedidoRepositoryImpl()
     }
+
+    @Provides
+    @Singleton
+    fun provideApiService(retrofitClient: RetrofitClient): ApiService = retrofitClient.apiService
 }

@@ -37,7 +37,7 @@ class OfertasEspecialesViewModel @Inject constructor(
                 onSuccess = { ofertas ->
                     val ofertasFiltradas = ofertas.filter { oferta ->
                         calcularPorcentajeDescuento(
-                            oferta.producto.precioOriginal,
+                            oferta.lote.precioLote,
                             oferta.lote.precioDescuento
                         ) >= UMBRAL_DESCUENTO_ESPECIAL
                     }

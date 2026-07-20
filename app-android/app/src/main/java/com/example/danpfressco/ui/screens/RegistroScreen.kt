@@ -13,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
@@ -161,6 +162,36 @@ fun RegistroScreen(
                             },
                             keyboardOptions = KeyboardOptions(
                                 keyboardType = KeyboardType.Email,
+                                imeAction = ImeAction.Next
+                            ),
+                            keyboardActions = KeyboardActions(
+                                onNext = { focusManager.moveFocus(FocusDirection.Down) }
+                            ),
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        Spacer(modifier = Modifier.height(4.dp))
+
+                        // Campo: Teléfono
+                        OutlinedTextField(
+                            value = uiState.telefono,
+                            onValueChange = { viewModel.onTelefonoChanged(it) },
+                            label = { Text("Teléfono") },
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.Phone,
+                                    contentDescription = "Teléfono"
+                                )
+                            },
+                            isError = uiState.telefonoError != null,
+                            supportingText = {
+                                uiState.telefonoError?.let {
+                                    Text(text = it, color = MaterialTheme.colorScheme.error)
+                                }
+                            },
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Phone,
                                 imeAction = ImeAction.Next
                             ),
                             keyboardActions = KeyboardActions(

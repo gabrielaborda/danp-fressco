@@ -5,7 +5,6 @@ import com.example.danpfressco.ui.state.LoginUiState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.danpfressco.data.repository.AuthRepository
-import com.example.danpfressco.data.session.SessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,8 +15,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val authRepository: AuthRepository,
-    private val sessionManager: SessionManager
+    private val authRepository: AuthRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LoginUiState())
@@ -77,8 +75,7 @@ class LoginViewModel @Inject constructor(
         viewModelScope.launch {
             val result = authRepository.login(currentEmail, currentPassword)
             result.fold(
-                onSuccess = { usuario ->
-                    sessionManager.saveSession(usuario)
+                onSuccess = { _ ->
                     _uiState.update { it.copy(isLoading = false, isSuccess = true) }
                 },
                 onFailure = { throwable ->
