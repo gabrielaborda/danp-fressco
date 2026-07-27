@@ -2,16 +2,20 @@
 Router: Autenticación
 - POST /auth/registro  — Registro de nuevos clientes
 - POST /auth/login     — Login de clientes y admins (devuelve JWT)
+- POST /auth/admin/registro — Crear un administrador autenticado por otro admin
 """
 from typing import Annotated
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.core.security import hash_password, verify_password, create_access_token
-from app.core.exceptions import ConflictError, UnauthorizedError
+from app.core.exceptions import ConflictError, NotFoundError, UnauthorizedError
+from app.core.dependencies import require_admin
 from app.db.session import get_db
 from app.models.administrador import Administrador
 from app.models.cliente import Cliente
+from app.models.tienda import Tienda
+from app.schemas.administrador import AdministradorCreate, AdministradorResponse
 from app.schemas.auth import LoginRequest, RegisterRequest, TokenResponse
 
 router = APIRouter(prefix="/auth", tags=["Autenticación"])
@@ -43,6 +47,42 @@ def registro_cliente(
         rol="cliente",
         nombre=cliente.nombre,
         id=cliente.id,
+    )
+
+
+@router.post("/admin/registro", response_model=AdministradorResponse, status_code=201)
+def crear_admin(
+    body: AdministradorCreate,
+    db: Annotated[Session, Depends(get_db)],
+    _: Annotated[Administrador, Depends(require_admin)],
+):
+    """Crea un nuevo administrador a partir de un token de otro admin."""
+    if db.query(Administrador).filter(Administrador.email == body.email).first():
+        raise ConflictError(f"El email '{body.email}' ya está registrado")
+
+    tienda = db.get(Tienda, body.tienda_id)
+    if tienda is None:
+        raise NotFoundError("La tienda indicada no existe")
+
+    admin = Administrador(
+        tienda_id=body.tienda_id,
+        nombre=body.nombre,
+        email=str(body.email),
+        password_hash=hash_password(body.password),
+        rol="admin",
+        activo=True,
+    )
+    db.add(admin)
+    db.commit()
+    db.refresh(admin)
+
+    return AdministradorResponse(
+        id=admin.id,
+        tienda_id=admin.tienda_id,
+        nombre=admin.nombre,
+        email=admin.email,
+        rol=admin.rol,
+        activo=admin.activo,
     )
 
 
