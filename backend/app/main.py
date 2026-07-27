@@ -6,6 +6,7 @@ Registra todos los routers, middlewares y handlers de error.
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
+from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.core.exceptions import (
@@ -27,6 +28,10 @@ from app.api.v1 import catalogo
 from app.api.v1 import carrito
 from app.api.v1 import pedidos
 from app.api.v1 import perfil
+from app.core.security import hash_password
+from app.db.session import SessionLocal
+from app.models.administrador import Administrador
+from app.models.tienda import Tienda
 
 # ─── Aplicación ─────────────────────────────────────────────────────────────
 app = FastAPI(
@@ -69,6 +74,48 @@ app.include_router(catalogo.router, prefix=PREFIX)
 app.include_router(carrito.router, prefix=PREFIX)
 app.include_router(pedidos.router, prefix=PREFIX)
 app.include_router(perfil.router, prefix=PREFIX)
+
+
+def initialize_default_admin() -> None:
+    db: Session = SessionLocal()
+    try:
+        tienda = db.query(Tienda).first()
+        admin_existente = db.query(Administrador).first()
+
+        if tienda is None:
+            tienda = Tienda(
+                nombre="Tienda Inicial",
+                direccion="Dirección pendiente",
+                telefono="000000000",
+                email_contacto="contacto@fressco.local",
+                descripcion="Tienda creada automáticamente al iniciar la aplicación",
+                activa=True,
+            )
+            db.add(tienda)
+            db.flush()
+
+        if admin_existente is None:
+            admin = Administrador(
+                tienda_id=tienda.id,
+                nombre="Admin Inicial",
+                email="admin@fressco.com",
+                password_hash=hash_password("admin123"),
+                rol="admin",
+                activo=True,
+            )
+            db.add(admin)
+            db.commit()
+            print("✅ Admin inicial creado: admin@fressco.com / admin123")
+        else:
+            db.rollback()
+    except Exception:
+        db.rollback()
+        raise
+    finally:
+        db.close()
+
+
+initialize_default_admin()
 
 
 # ─── Health check ────────────────────────────────────────────────────────────
