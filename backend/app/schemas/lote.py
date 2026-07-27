@@ -30,6 +30,7 @@ class LoteResponse(LoteBase):
     cantidad_inicial: int
     estado: str
     creado_en: datetime
+    tiene_descuento_manual: bool = False
 
     model_config = {"from_attributes": True}
 

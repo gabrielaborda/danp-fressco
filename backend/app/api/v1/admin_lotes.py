@@ -7,7 +7,7 @@ GET /admin/lotes/{id}/historial-descuentos
 from datetime import date
 from typing import Annotated
 from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 from app.core.dependencies import require_admin
 from app.core.exceptions import NotFoundError, BadRequestError
@@ -29,7 +29,7 @@ def listar_lotes(
     db: Session = Depends(get_db),
     _: Administrador = Depends(require_admin),
 ):
-    query = db.query(Lote)
+    query = db.query(Lote).options(selectinload(Lote.descuentos))
     if producto_id:
         query = query.filter(Lote.producto_id == producto_id)
     if estado:

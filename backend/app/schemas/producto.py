@@ -30,5 +30,6 @@ class ProductoResponse(ProductoBase):
     id: int
     tienda_id: int
     activo: bool
+    stock_total: int = 0
 
     model_config = {"from_attributes": True}
