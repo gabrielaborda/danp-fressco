@@ -8,14 +8,15 @@ from typing import Annotated
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
+from app.core.config import settings
 from app.core.security import hash_password, verify_password, create_access_token
-from app.core.exceptions import ConflictError, NotFoundError, UnauthorizedError
+from app.core.exceptions import ConflictError, ForbiddenError, NotFoundError, UnauthorizedError
 from app.core.dependencies import require_admin
 from app.db.session import get_db
 from app.models.administrador import Administrador
 from app.models.cliente import Cliente
 from app.models.tienda import Tienda
-from app.schemas.administrador import AdministradorCreate, AdministradorResponse
+from app.schemas.administrador import AdministradorCreate, AdministradorCreateDirect, AdministradorResponse
 from app.schemas.auth import LoginRequest, RegisterRequest, TokenResponse
 
 router = APIRouter(prefix="/auth", tags=["Autenticación"])
@@ -66,6 +67,59 @@ def crear_admin(
 
     admin = Administrador(
         tienda_id=body.tienda_id,
+        nombre=body.nombre,
+        email=str(body.email),
+        password_hash=hash_password(body.password),
+        rol="admin",
+        activo=True,
+    )
+    db.add(admin)
+    db.commit()
+    db.refresh(admin)
+
+    return AdministradorResponse(
+        id=admin.id,
+        tienda_id=admin.tienda_id,
+        nombre=admin.nombre,
+        email=admin.email,
+        rol=admin.rol,
+        activo=admin.activo,
+    )
+
+
+@router.post("/admin/registro-directo", response_model=AdministradorResponse, status_code=201)
+def crear_admin_directo(
+    body: AdministradorCreateDirect,
+    db: Annotated[Session, Depends(get_db)],
+):
+    """Crea un administrador desde Swagger en modo desarrollo sin token."""
+    if not settings.DEBUG:
+        raise ForbiddenError("Este endpoint solo está disponible en modo desarrollo")
+
+    if db.query(Administrador).filter(Administrador.email == str(body.email)).first():
+        raise ConflictError(f"El email '{body.email}' ya está registrado")
+
+    tienda = None
+    if body.tienda_id is not None:
+        tienda = db.get(Tienda, body.tienda_id)
+        if tienda is None:
+            raise NotFoundError("La tienda indicada no existe")
+    else:
+        tienda = db.query(Tienda).first()
+        if tienda is None:
+            tienda = Tienda(
+                nombre=body.tienda_nombre or "Tienda creada por admin",
+                direccion=body.tienda_direccion or "Dirección pendiente",
+                telefono=body.tienda_telefono or "000000000",
+                email_contacto=body.tienda_email_contacto or str(body.email),
+                descripcion=body.tienda_descripcion or "Tienda creada desde Swagger",
+                activa=True,
+            )
+            db.add(tienda)
+            db.flush()
+
+    admin = Administrador(
+        tienda_id=tienda.id,
         nombre=body.nombre,
         email=str(body.email),
         password_hash=hash_password(body.password),

@@ -11,6 +11,18 @@ class AdministradorCreate(BaseModel):
     password: str
 
 
+class AdministradorCreateDirect(BaseModel):
+    nombre: str
+    email: EmailStr
+    password: str
+    tienda_id: int | None = None
+    tienda_nombre: str | None = None
+    tienda_direccion: str | None = None
+    tienda_telefono: str | None = None
+    tienda_email_contacto: str | None = None
+    tienda_descripcion: str | None = None
+
+
 class AdministradorUpdate(BaseModel):
     nombre: str | None = None
     email: EmailStr | None = None
