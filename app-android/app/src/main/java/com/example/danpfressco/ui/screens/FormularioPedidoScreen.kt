@@ -30,16 +30,23 @@ private val FRANJAS_HORARIAS = listOf(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FormularioPedidoScreen(
-    onPedidoConfirmado: () -> Unit,
+    onNavegaToPasarela: (nombre: String, telefono: String, horario: String) -> Unit,
     onNavigateBack: () -> Unit,
     viewModel: FormularioPedidoViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val itemsCarrito by viewModel.itemsCarrito.collectAsState()
 
-    // Gatillo de navegación — análogo al LaunchedEffect en LoginScreen/RegistroScreen
-    LaunchedEffect(uiState.pedidoConfirmado) {
-        if (uiState.pedidoConfirmado) onPedidoConfirmado()
+    // Gatillo de navegación — cuando los datos son válidos, navega a PasarelaPago
+    LaunchedEffect(uiState.listoParaPago) {
+        if (uiState.listoParaPago) {
+            onNavegaToPasarela(
+                uiState.nombreContacto.trim(),
+                uiState.telefonoContacto.trim(),
+                uiState.horarioRecogida!!
+            )
+            viewModel.onNavigationHandled()
+        }
     }
 
     Scaffold(
@@ -214,7 +221,7 @@ fun FormularioPedidoScreen(
                     onValueChange = {},
                     readOnly = true,
                     label = { Text("Horario de recogida") },
-                    placeholder = { Text("Selecciona una franja") },
+                    placeholder = { Text("Selecciona una opción") },
                     trailingIcon = {
                         Icon(
                             imageVector = Icons.Default.ArrowDropDown,
@@ -272,9 +279,9 @@ fun FormularioPedidoScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // ─── Botón confirmar ──────────────────────────────────────────────
+            // ─── Botón ir al pago ─────────────────────────────────────────────
             Button(
-                onClick = viewModel::confirmarPedido,
+                onClick = viewModel::confirmarFormulario,
                 enabled = !uiState.isLoading,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -289,7 +296,7 @@ fun FormularioPedidoScreen(
                     )
                 } else {
                     Text(
-                        text = "Confirmar Pedido",
+                        text = "Ir al pago",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )

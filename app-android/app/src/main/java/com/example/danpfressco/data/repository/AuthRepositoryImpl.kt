@@ -71,4 +71,8 @@ class AuthRepositoryImpl @Inject constructor(
             Result.failure(Exception("Error de conexión, intenta de nuevo"))
         }
     }
+
+    override suspend fun logout() {
+        sessionManager.clearSession()
+    }
 }

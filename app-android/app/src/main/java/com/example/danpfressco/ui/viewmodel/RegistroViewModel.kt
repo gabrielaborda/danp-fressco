@@ -22,6 +22,9 @@ class RegistroViewModel @Inject constructor(
     val uiState: StateFlow<RegistroUiState> = _uiState.asStateFlow()
 
     private val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}\$".toRegex()
+    // Regex: solo dígitos, longitud entre 7 y 15 (locales y con código de país)
+    private val telefonoRegex = "^\\d{9}$".toRegex()
+
 
     fun onNombreChanged(nombre: String) {
         _uiState.update { state ->
@@ -43,8 +46,12 @@ class RegistroViewModel @Inject constructor(
 
     fun onTelefonoChanged(telefono: String) {
         _uiState.update { state ->
-            val telefonoError = if (telefono.isBlank()) "El teléfono no puede estar vacío" else null
-            state.copy(telefono = telefono, telefonoError = telefonoError, errorMessage = null)
+            val error = when {
+                telefono.isBlank() -> "El teléfono no puede estar vacío"
+                !telefono.matches(telefonoRegex) -> "Ingresa 9 dígitos sin espacios ni guiones"
+                else -> null
+            }
+            state.copy(telefono = telefono, telefonoError = error, errorMessage = null)
         }
     }
 

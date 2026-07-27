@@ -5,6 +5,8 @@ import com.example.danpfressco.data.repository.AuthRepository
 import com.example.danpfressco.data.repository.AuthRepositoryImpl
 import com.example.danpfressco.data.repository.CarritoRepository
 import com.example.danpfressco.data.repository.CarritoRepositoryImpl
+import com.example.danpfressco.data.repository.PagoRepository
+import com.example.danpfressco.data.repository.PagoRepositoryImpl
 import com.example.danpfressco.data.repository.PedidoRepository
 import com.example.danpfressco.data.repository.PedidoRepositoryImpl
 import com.example.danpfressco.data.repository.ProductoRepository
@@ -57,6 +59,12 @@ object AppModule {
     @Singleton
     fun providePedidoRepository(): PedidoRepository {
         return PedidoRepositoryImpl()
+    }
+
+    @Provides
+    @Singleton
+    fun providePagoRepository(): PagoRepository {
+        return PagoRepositoryImpl()
     }
 
     @Provides

@@ -5,8 +5,6 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.LocalOffer
-import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -14,12 +12,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.danpfressco.ui.navigation.Screen
-import com.example.danpfressco.ui.screens.components.CarritoIconButton
+import com.example.danpfressco.ui.screens.components.FresscoTopBar
 import com.example.danpfressco.ui.screens.components.OfertaCard
 import com.example.danpfressco.ui.viewmodel.PrincipalViewModel
 
@@ -27,28 +24,17 @@ import com.example.danpfressco.ui.viewmodel.PrincipalViewModel
 @Composable
 fun PrincipalScreen(
     navController: NavController,
+    onLogout: () -> Unit,
     viewModel: PrincipalViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    Text(
-                        text = "Ofertas Fressco",
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                },
-                actions = {
-                    CarritoIconButton(
-                        onClick = { navController.navigate(Screen.Carrito.route) }
-                    )
-                },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                )
+            FresscoTopBar(
+                titulo = "Ofertas Fressco",
+                onNavigateToCarrito = { navController.navigate(Screen.Carrito.route) },
+                onLogout = onLogout
             )
         },
         containerColor = MaterialTheme.colorScheme.background
