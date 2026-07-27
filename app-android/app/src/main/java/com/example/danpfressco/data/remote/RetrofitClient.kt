@@ -14,7 +14,7 @@ class RetrofitClient @Inject constructor(
     authInterceptor: AuthInterceptor
 ) {
     // 10.0.2.2 es la dirección IP especial para acceder al localhost de la máquina host desde el EMULADOR de Android
-    private val BASE_URL = "http://10.0.2.2:8000/api/v1/"
+    private val BASE_URL = "https://danp-fressco.onrender.com/api/v1/"
 
     private val moshi = Moshi.Builder()
         .addLast(KotlinJsonAdapterFactory())
