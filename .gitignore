@@ -6,6 +6,8 @@ Thumbs.db
 .env.local
 .vscode/
 .idea/
+.cursor/
+AGENTS.md
 
 # ===== Node.js (backend / web-admin) =====
 node_modules/
