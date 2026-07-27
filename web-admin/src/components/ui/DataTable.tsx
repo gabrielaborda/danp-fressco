@@ -67,7 +67,7 @@ export function DataTable<T extends Record<string, any>>({
           label="Buscar"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          icon={<svg className="h-4 w-4" viewBox="0 0 24 24"><path fill="currentColor" d="M10 2a8 8 0 015.292 13.708l4.5 4.5a1 1 0 01-1.414 1.414l-4.5-4.5A8 8 0 1110 2zm0 2a6 6 0 100 12A6 6 0 0010 4z"/></svg>}
+          icon={<svg className="h-4 w-4" viewBox="0 0 24 24"><path fill="currentColor" d="M10 2a8 8 0 015.292 13.708l4.5 4.5a1 1 0 01-1.414 1.414l-4.5-4.5A8 8 0 1110 2zm0 2a6 6 0 100 12A6 6 0 0010 4z" /></svg>}
           autoComplete="off"
         />
       )}
@@ -115,9 +115,9 @@ export function DataTable<T extends Record<string, any>>({
       </div>
 
       {/* Pagination controls */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between py-2 px-2">
         <div className="flex items-center gap-2">
-          <span className="text-text-secondary">Página {page} de {totalPages}</span>
+          <span className="text-text-secondary text-xs">Página {page} de {totalPages}</span>
           <Button
             variant="outline"
             size="sm"
@@ -136,7 +136,7 @@ export function DataTable<T extends Record<string, any>>({
           </Button>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-text-secondary">Filas por página:</span>
+          <span className="text-text-secondary text-xs">Filas por página:</span>
           <select
             value={pageSize}
             onChange={(e) => {

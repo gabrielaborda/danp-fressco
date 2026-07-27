@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import String, Text, Numeric, ForeignKey
 from decimal import Decimal
+from datetime import date
 from app.models.base import Base
 
 if TYPE_CHECKING:
@@ -30,3 +31,11 @@ class Producto(Base):
     lotes: Mapped[list["Lote"]] = relationship(
         back_populates="producto", cascade="all, delete-orphan"
     )
+
+    @property
+    def stock_total(self) -> int:
+        hoy = date.today()
+        return sum(
+            lote.cantidad for lote in self.lotes 
+            if lote.estado == "disponible" and lote.fecha_vencimiento > hoy
+        )

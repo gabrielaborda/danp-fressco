@@ -1,10 +1,12 @@
 import { api } from './axios';
 
-export const getUsers = (params?: Record<string, any>) =>
-  api.get('/admin/usuarios', { params });
+// GET /admin/clientes — lista clientes con filtro opcional de estado (activo | suspendido)
+export const getClientes = (params?: Record<string, any>) =>
+  api.get('/admin/clientes', { params });
 
-export const updateUserStatus = (id: number, isActive: boolean) =>
-  api.patch(`/admin/usuarios/${id}/status`, { is_active: isActive });
+export const getCliente = (id: number) =>
+  api.get(`/admin/clientes/${id}`);
 
-export const getUserStats = (id: number) =>
-  api.get(`/admin/usuarios/${id}/stats`);
+// PUT /admin/clientes/{id} — actualiza nombre, teléfono o estado (activo | suspendido)
+export const updateCliente = (id: number, data: { nombre?: string; telefono?: string; estado?: string }) =>
+  api.put(`/admin/clientes/${id}`, data);

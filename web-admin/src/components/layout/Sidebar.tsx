@@ -18,7 +18,6 @@ const routes = [
   { name: 'Descuentos', path: '/descuentos', icon: Tags },
   { name: 'Pedidos', path: '/pedidos', icon: ShoppingCart },
   { name: 'Usuarios', path: '/usuarios', icon: Users },
-  { name: 'Reportes', path: '/reportes', icon: BarChart2 },
 ];
 
 export function Sidebar({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen: (val: boolean) => void }) {
@@ -70,7 +69,7 @@ export function Sidebar({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen: (va
 
         <div className="p-4 border-t border-border">
           <Link
-            to="/perfil"
+            to="/"
             className={cn(
               "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
               location.pathname === '/perfil'
@@ -79,7 +78,7 @@ export function Sidebar({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen: (va
             )}
           >
             <UserCircle className="h-5 w-5" />
-            Perfil Admin
+            Admin
           </Link>
         </div>
       </aside>

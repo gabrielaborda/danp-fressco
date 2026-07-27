@@ -1,18 +1,18 @@
 import { useState } from "react"
 
 interface Props {
-  type: string
+  type?: string
   label: string
   value: string
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
-  icon: React.ReactNode
+  icon?: React.ReactNode
   autoComplete?: string
   placeholder?: string
   error?: string
 }
 
 export default function InputField({
-  type,
+  type = "text",
   label,
   value,
   onChange,
@@ -35,11 +35,13 @@ export default function InputField({
         }`}
       >
         {/* Icon */}
-        <div className={`flex items-center justify-center transition-colors duration-300 ${
-          error ? "text-red-500 opacity-70" : focused || value ? "text-primary" : "text-text-secondary"
-        }`}>
-          {icon}
-        </div>
+        {icon && (
+          <div className={`flex items-center justify-center transition-colors duration-300 ${
+            error ? "text-red-500 opacity-70" : focused || value ? "text-primary" : "text-text-secondary"
+          }`}>
+            {icon}
+          </div>
+        )}
 
         {/* Input container */}
         <div className="relative h-[45px] flex-1">

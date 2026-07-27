@@ -4,7 +4,7 @@ GET/POST/PUT/DELETE /admin/productos
 """
 from typing import Annotated
 from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 from app.core.dependencies import require_admin
 from app.core.exceptions import NotFoundError
@@ -23,7 +23,7 @@ def listar_productos(
     db: Session = Depends(get_db),
     _: Administrador = Depends(require_admin),
 ):
-    query = db.query(Producto)
+    query = db.query(Producto).options(selectinload(Producto.lotes))
     if tienda_id:
         query = query.filter(Producto.tienda_id == tienda_id)
     return query.all()
@@ -52,7 +52,7 @@ def obtener_producto(
     db: Annotated[Session, Depends(get_db)],
     _: Annotated[Administrador, Depends(require_admin)],
 ):
-    producto = db.get(Producto, producto_id)
+    producto = db.query(Producto).options(selectinload(Producto.lotes)).filter(Producto.id == producto_id).first()
     if producto is None:
         raise NotFoundError(f"Producto #{producto_id} no encontrado")
     return producto

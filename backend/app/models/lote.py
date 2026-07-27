@@ -41,3 +41,11 @@ class Lote(Base):
     )
     carrito_items: Mapped[list["CarritoItem"]] = relationship(back_populates="lote")
     pedido_items: Mapped[list["PedidoItem"]] = relationship(back_populates="lote")
+
+    @property
+    def tiene_descuento_manual(self) -> bool:
+        hoy = date.today()
+        return any(
+            d.tipo == "manual_admin" and d.activo and d.fecha_inicio <= hoy <= d.fecha_fin
+            for d in self.descuentos
+        )
