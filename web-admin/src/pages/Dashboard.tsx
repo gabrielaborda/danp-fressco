@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
@@ -22,7 +22,6 @@ import { toast } from 'react-toastify';
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
 
   // States
   const [expiringLots, setExpiringLots] = useState<any[]>([]);
@@ -40,7 +39,6 @@ export default function Dashboard() {
 
   useEffect(() => {
     const fetchDashboardData = async () => {
-      setLoading(true);
       try {
         const [productsRes, ordersRes, expiringRes, topSellersRes] = await Promise.all([
           getProducts(),
@@ -103,7 +101,7 @@ export default function Dashboard() {
         console.error(err);
         toast.error('Error al cargar datos del Dashboard');
       } finally {
-        setLoading(false);
+        // loading state removed
       }
     };
 

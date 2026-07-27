@@ -6,7 +6,7 @@ import InputField from "../components/auth/login/InputField";
 import { getLots } from "../api/lots";
 import { getProducts } from "../api/products";
 import { updateLotDiscount, deactivateLotDiscount } from "../api/discounts";
-import { Percent, CheckSquare, Square, AlertCircle, CheckCircle2, Tag, Calendar } from "lucide-react";
+import { Percent, CheckSquare, Square, CheckCircle2, Tag, Calendar } from "lucide-react";
 import { Badge } from "../components/ui/Badge";
 import { toast } from "react-toastify";
 

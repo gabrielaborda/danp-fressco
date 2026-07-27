@@ -7,7 +7,6 @@ import {
   Tags,
   ShoppingCart,
   Users,
-  BarChart2,
   UserCircle
 } from 'lucide-react';
 
