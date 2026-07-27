@@ -287,6 +287,62 @@ Esto garantiza que dos clientes comprando el mismo lote simultáneamente **nunca
 
 ---
 
+## Deploy en Render
+
+La forma más robusta de desplegar este backend es usar Render Web Service + Render PostgreSQL, con migraciones automáticas en cada release.
+
+### 1. Preparar el repositorio
+
+Asegúrate de que el proyecto tenga estos archivos en la raíz del backend:
+- [render.yaml](render.yaml) — define el servicio web, la base de datos y el comando de release
+- [requirements.txt](requirements.txt) — dependencias de Python
+- [alembic/](alembic) — migraciones para crear las tablas
+
+### 2. Crear el servicio en Render
+
+1. En Render, crea un nuevo proyecto y agrega el repositorio:
+   - Repo: `gabrielaborda/danp-fressco/backend`
+2. Render detectará el archivo [render.yaml](render.yaml) y creará:
+   - un Web Service para FastAPI
+   - una base de datos PostgreSQL
+3. El servicio usará:
+   - build command: `pip install -r requirements.txt`
+   - start command: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+   - release command: `alembic upgrade head`
+
+### 3. Variables de entorno recomendadas
+
+Render inyectará `DATABASE_URL` automáticamente si usas la base de datos creada desde [render.yaml](render.yaml). Además, define estas variables en el servicio:
+
+```env
+SECRET_KEY=un_secreto_largo_y_aleatorio
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=60
+DISCOUNT_TIERS=2:60,5:40,10:20
+DEBUG=false
+APP_NAME=Fressco API
+APP_VERSION=1.0.0
+API_PREFIX=/api/v1
+```
+
+> En producción conviene usar un valor fuerte para `SECRET_KEY` y limitar CORS a tus dominios reales.
+
+### 4. Comportamiento esperado
+
+- El servicio levantará FastAPI en el puerto que Render asigna.
+- En cada deploy, Render ejecutará `alembic upgrade head` para aplicar las migraciones.
+- El health check queda disponible en `/health`.
+
+### 5. Verificar el deploy
+
+Una vez desplegado, revisa:
+- `https://<tu-dominio-render>/health`
+- `https://<tu-dominio-render>/docs`
+
+Si quieres, el siguiente paso ideal es agregar un seed automático al release para que el entorno de producción quede poblado con datos demo.
+
+---
+
 ## Ver más ejemplos
 
 📖 [docs/api_examples.md](docs/api_examples.md) — Ejemplos completos con curl  

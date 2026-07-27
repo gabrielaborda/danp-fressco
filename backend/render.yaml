@@ -1,0 +1,40 @@
+services:
+  - type: web
+    name: fressco-backend
+    env: python
+    plan: starter
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+    healthCheckPath: /health
+    releaseCommand: "alembic upgrade head"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ALGORITHM
+        value: HS256
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: 60
+      - key: DISCOUNT_TIERS
+        value: 2:60,5:40,10:20
+      - key: DEBUG
+        value: false
+      - key: APP_NAME
+        value: Fressco API
+      - key: APP_VERSION
+        value: 1.0.0
+      - key: API_PREFIX
+        value: /api/v1
+      - key: CORS_ALLOW_ORIGINS
+        value: "*"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: fressco-db
+          property: connectionString
+
+databases:
+  - name: fressco-db
+    plan: starter
+    databaseName: fressco
+    user: fressco
