@@ -7,7 +7,8 @@ package com.example.danpfressco.ui.state
  * - Campos de entrada con su valor actual
  * - Error nullable por campo (null = sin error)
  * - Flags de estado de la operación
- * - [pedidoConfirmado] actúa como gatillo de navegación (análogo a isSuccess)
+ * - [listoParaPago] actúa como gatillo de navegación hacia PasarelaPago.
+ *   El pedido se crea en [PagoViewModel] tras un pago exitoso.
  */
 data class FormularioPedidoUiState(
     // Campos del formulario
@@ -23,5 +24,6 @@ data class FormularioPedidoUiState(
     // Estado de la operación
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
-    val pedidoConfirmado: Boolean = false     // gatillo de navegación a Mis Pedidos
+    val listoParaPago: Boolean = false        // gatillo de navegación a PasarelaPago
 )
+

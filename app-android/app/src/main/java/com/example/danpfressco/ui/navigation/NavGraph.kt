@@ -1,6 +1,5 @@
 package com.example.danpfressco.ui.navigation
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
@@ -26,6 +25,7 @@ import com.example.danpfressco.ui.screens.FormularioPedidoScreen
 import com.example.danpfressco.ui.screens.LoginScreen
 import com.example.danpfressco.ui.screens.MisPedidosScreen
 import com.example.danpfressco.ui.screens.OfertasEspecialesScreen
+import com.example.danpfressco.ui.screens.PasarelaPagoScreen
 import com.example.danpfressco.ui.screens.PrincipalScreen
 import com.example.danpfressco.ui.screens.ProductosScreen
 import com.example.danpfressco.ui.screens.RegistroScreen
@@ -42,6 +42,13 @@ fun FresscoNavGraph() {
         Screen.MisPedidos.route
     )
     val showBottomBar = currentRoute in bottomNavRoutes
+
+    // Lambda de logout compartida — limpia todo el back stack hasta la raíz
+    val onLogout: () -> Unit = {
+        navController.navigate(Screen.Login.route) {
+            popUpTo(0) { inclusive = true }
+        }
+    }
 
     Scaffold(
         bottomBar = {
@@ -110,6 +117,7 @@ fun FresscoNavGraph() {
                     }
                 )
             }
+
             composable(Screen.Registro.route) {
                 RegistroScreen(
                     onRegistroSuccess = {
@@ -122,7 +130,14 @@ fun FresscoNavGraph() {
                     }
                 )
             }
-            composable(Screen.Principal.route) { PrincipalScreen(navController = navController) }
+
+            composable(Screen.Principal.route) {
+                PrincipalScreen(
+                    navController = navController,
+                    onLogout = onLogout
+                )
+            }
+
             composable(
                 route = Screen.Productos.route,
                 arguments = listOf(navArgument("loteId") { type = NavType.StringType })
@@ -132,19 +147,42 @@ fun FresscoNavGraph() {
                     onNavigateToCarrito = { navController.navigate(Screen.Carrito.route) }
                 )
             }
+
             composable(Screen.Carrito.route) {
                 CarritoScreen(navController = navController)
             }
+
             composable(Screen.FormularioPedido.route) {
                 FormularioPedidoScreen(
-                    onPedidoConfirmado = {
+                    onNavegaToPasarela = { nombre, telefono, horario ->
+                        navController.navigate(
+                            Screen.PasarelaPago.createRoute(nombre, telefono, horario)
+                        )
+                    },
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
+
+            composable(
+                route = Screen.PasarelaPago.route,
+                arguments = listOf(
+                    navArgument("nombre") { type = NavType.StringType },
+                    navArgument("telefono") { type = NavType.StringType },
+                    navArgument("horario") { type = NavType.StringType }
+                )
+            ) {
+                PasarelaPagoScreen(
+                    onPagoExitoso = {
                         navController.navigate(Screen.MisPedidos.route) {
-                            popUpTo(Screen.Carrito.route) { inclusive = true }
+                            // Limpiar el back stack hasta Principal para que
+                            // "atrás" desde MisPedidos no regrese a la pasarela
+                            popUpTo(Screen.Principal.route) { inclusive = false }
                         }
                     },
                     onNavigateBack = { navController.popBackStack() }
                 )
             }
+
             composable(Screen.MisPedidos.route) {
                 MisPedidosScreen(
                     onNavigateToPrincipal = {
@@ -154,11 +192,16 @@ fun FresscoNavGraph() {
                             }
                         }
                     },
-                    onNavigateToCarrito = { navController.navigate(Screen.Carrito.route) }
+                    onNavigateToCarrito = { navController.navigate(Screen.Carrito.route) },
+                    onLogout = onLogout
                 )
             }
+
             composable(Screen.OfertasEspeciales.route) {
-                OfertasEspecialesScreen(navController = navController)
+                OfertasEspecialesScreen(
+                    navController = navController,
+                    onLogout = onLogout
+                )
             }
         }
     }

@@ -15,6 +15,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.danpfressco.data.model.EstadoPedido
+import com.example.danpfressco.ui.screens.components.FresscoTopBar
 import com.example.danpfressco.ui.state.PedidoItemUiState
 import com.example.danpfressco.ui.util.formatearPrecio
 import com.example.danpfressco.ui.viewmodel.MisPedidosViewModel
@@ -24,6 +25,7 @@ import com.example.danpfressco.ui.viewmodel.MisPedidosViewModel
 fun MisPedidosScreen(
     onNavigateToPrincipal: () -> Unit,
     onNavigateToCarrito: () -> Unit,
+    onLogout: () -> Unit,
     viewModel: MisPedidosViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -31,22 +33,10 @@ fun MisPedidosScreen(
 
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    Text(
-                        text = "Mis Pedidos",
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                },
-                actions = {
-                    com.example.danpfressco.ui.screens.components.CarritoIconButton(
-                        onClick = onNavigateToCarrito
-                    )
-                },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                )
+            FresscoTopBar(
+                titulo = "Mis Pedidos",
+                onNavigateToCarrito = onNavigateToCarrito,
+                onLogout = onLogout
             )
         },
         containerColor = MaterialTheme.colorScheme.background

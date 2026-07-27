@@ -12,11 +12,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.danpfressco.ui.navigation.Screen
+import com.example.danpfressco.ui.screens.components.FresscoTopBar
 import com.example.danpfressco.ui.screens.components.OfertaCard
 import com.example.danpfressco.ui.viewmodel.OfertasEspecialesViewModel
 
@@ -24,28 +24,17 @@ import com.example.danpfressco.ui.viewmodel.OfertasEspecialesViewModel
 @Composable
 fun OfertasEspecialesScreen(
     navController: NavController,
+    onLogout: () -> Unit,
     viewModel: OfertasEspecialesViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    Text(
-                        text = "Ofertas Especiales",
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                },
-                actions = {
-                    com.example.danpfressco.ui.screens.components.CarritoIconButton(
-                        onClick = { navController.navigate(Screen.Carrito.route) }
-                    )
-                },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                )
+            FresscoTopBar(
+                titulo = "Ofertas Especiales",
+                onNavigateToCarrito = { navController.navigate(Screen.Carrito.route) },
+                onLogout = onLogout
             )
         },
         containerColor = MaterialTheme.colorScheme.background
