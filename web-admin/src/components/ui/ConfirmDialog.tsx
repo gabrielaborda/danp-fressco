@@ -1,8 +1,5 @@
-import React from 'react';
 import { Modal } from './Modal';
 import { Button } from './Button';
-import { cn } from '../../utils/cn';
-
 type ConfirmDialogProps = {
   isOpen: boolean;
   onClose: () => void;
