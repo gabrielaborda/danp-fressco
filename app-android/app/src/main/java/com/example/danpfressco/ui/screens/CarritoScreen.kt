@@ -99,25 +99,11 @@ fun CarritoScreen(
                             .fillMaxSize()
                             .padding(16.dp)
                     ) {
-                        Surface(
-                            color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
-                            shape = RoundedCornerShape(8.dp)
-                        ) {
-                            Text(
-                                text = "Tienda: ${uiState.tienda}",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.height(12.dp))
-
                         LazyColumn(
                             modifier = Modifier.weight(1f),
                             verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            items(uiState.items, key = { it.oferta.lote.id }) { item ->
+                            items(uiState.items, key = { it.id }) { item ->
                                 Card(
                                     shape = RoundedCornerShape(12.dp),
                                     colors = CardDefaults.cardColors(
@@ -131,8 +117,8 @@ fun CarritoScreen(
                                             horizontalArrangement = Arrangement.spacedBy(12.dp)
                                         ) {
                                             AsyncImage(
-                                                model = item.oferta.producto.imagenUrl,
-                                                contentDescription = item.oferta.producto.nombre,
+                                                model = item.imagenUrl,
+                                                contentDescription = item.nombreProducto,
                                                 contentScale = ContentScale.Crop,
                                                 modifier = Modifier
                                                     .size(60.dp)
@@ -140,21 +126,21 @@ fun CarritoScreen(
                                             )
                                             Column(modifier = Modifier.weight(1f)) {
                                                 Text(
-                                                    text = item.oferta.producto.nombre,
+                                                    text = item.nombreProducto,
                                                     style = MaterialTheme.typography.titleSmall,
                                                     fontWeight = FontWeight.Bold,
                                                     maxLines = 2
                                                 )
                                                 Spacer(modifier = Modifier.height(4.dp))
                                                 Text(
-                                                    text = formatearPrecio(item.oferta.lote.precioDescuento),
+                                                    text = formatearPrecio(item.precioAplicado),
                                                     style = MaterialTheme.typography.bodyMedium,
                                                     color = MaterialTheme.colorScheme.primary,
                                                     fontWeight = FontWeight.Bold
                                                 )
                                             }
                                             IconButton(onClick = {
-                                                viewModel.eliminarItem(item.oferta.lote.id)
+                                                viewModel.eliminarItem(item.id)
                                             }) {
                                                 Icon(
                                                     imageVector = Icons.Default.Delete,
@@ -178,7 +164,7 @@ fun CarritoScreen(
                                                 IconButton(
                                                     onClick = {
                                                         viewModel.actualizarCantidad(
-                                                            item.oferta.lote.id,
+                                                            item.id,
                                                             item.cantidad - 1
                                                         )
                                                     },
@@ -199,11 +185,11 @@ fun CarritoScreen(
                                                 IconButton(
                                                     onClick = {
                                                         viewModel.actualizarCantidad(
-                                                            item.oferta.lote.id,
+                                                            item.id,
                                                             item.cantidad + 1
                                                         )
                                                     },
-                                                    enabled = item.cantidad < item.oferta.lote.cantidadRestante,
+                                                    enabled = item.cantidadRestanteAprox?.let { item.cantidad < it } ?: true,
                                                     modifier = Modifier.size(36.dp)
                                                 ) {
                                                     Icon(
@@ -214,9 +200,7 @@ fun CarritoScreen(
                                                 }
                                             }
                                             Text(
-                                                text = formatearPrecio(
-                                                    item.oferta.lote.precioDescuento * item.cantidad
-                                                ),
+                                                text = formatearPrecio(item.subtotal),
                                                 style = MaterialTheme.typography.titleMedium,
                                                 fontWeight = FontWeight.ExtraBold,
                                                 color = MaterialTheme.colorScheme.primary

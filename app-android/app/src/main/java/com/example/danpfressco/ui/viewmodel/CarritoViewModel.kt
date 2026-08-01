@@ -17,12 +17,15 @@ class CarritoViewModel @Inject constructor(
     private val carritoRepository: CarritoRepository
 ) : ViewModel() {
 
+    init {
+        cargarCarrito()
+    }
+
     val uiState: StateFlow<CarritoScreenUiState> = carritoRepository.items
         .map { items ->
             CarritoScreenUiState(
                 items = items,
-                tienda = items.firstOrNull()?.oferta?.lote?.nombreTienda ?: "",
-                total = items.sumOf { it.oferta.lote.precioDescuento * it.cantidad },
+                total = items.sumOf { it.precioAplicado * it.cantidad },
                 cantidadTotal = items.sumOf { it.cantidad }
             )
         }
@@ -32,15 +35,21 @@ class CarritoViewModel @Inject constructor(
             initialValue = CarritoScreenUiState()
         )
 
-    fun actualizarCantidad(loteId: String, nuevaCantidad: Int) {
+    fun cargarCarrito() {
         viewModelScope.launch {
-            carritoRepository.actualizarCantidad(loteId, nuevaCantidad)
+            carritoRepository.cargarCarrito()
         }
     }
 
-    fun eliminarItem(loteId: String) {
+    fun actualizarCantidad(itemId: String, nuevaCantidad: Int) {
         viewModelScope.launch {
-            carritoRepository.eliminarItem(loteId)
+            carritoRepository.actualizarCantidad(itemId, nuevaCantidad)
+        }
+    }
+
+    fun eliminarItem(itemId: String) {
+        viewModelScope.launch {
+            carritoRepository.eliminarItem(itemId)
         }
     }
 }
