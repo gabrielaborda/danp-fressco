@@ -1,80 +1,121 @@
 package com.example.danpfressco.data.repository
 
 import com.example.danpfressco.data.model.ItemCarrito
-import com.example.danpfressco.data.model.OfertaProducto
+import com.example.danpfressco.data.remote.ApiService
+import com.example.danpfressco.data.remote.dto.CarritoItemCreateDto
+import com.example.danpfressco.data.remote.dto.CarritoItemUpdateDto
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import retrofit2.HttpException
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class CarritoRepositoryImpl @Inject constructor() : CarritoRepository {
+class CarritoRepositoryImpl @Inject constructor(
+    private val apiService: ApiService,
+    private val productoRepository: ProductoRepository
+) : CarritoRepository {
 
     private val _items = MutableStateFlow<List<ItemCarrito>>(emptyList())
     override val items: StateFlow<List<ItemCarrito>> = _items.asStateFlow()
 
-    override suspend fun agregarItem(oferta: OfertaProducto, cantidad: Int): AgregarItemResult {
-        val itemsActuales = _items.value
-
-        if (itemsActuales.isEmpty()) {
-            _items.value = listOf(ItemCarrito(oferta = oferta, cantidad = cantidad))
-            return AgregarItemResult.Agregado
-        }
-
-        val tiendaActual = itemsActuales.first().oferta.lote.nombreTienda
-        val tiendaNueva = oferta.lote.nombreTienda
-
-        if (tiendaActual != tiendaNueva) {
-            return AgregarItemResult.ConflictoTienda(
-                tiendaActual = tiendaActual,
-                tiendaNueva = tiendaNueva
-            )
-        }
-
-        val itemExistente = itemsActuales.find { it.oferta.lote.id == oferta.lote.id }
-        if (itemExistente != null) {
-            val nuevaCantidad = minOf(
-                itemExistente.cantidad + cantidad,
-                oferta.lote.cantidadRestante
-            )
-            _items.value = itemsActuales.map {
-                if (it.oferta.lote.id == oferta.lote.id) {
-                    it.copy(cantidad = nuevaCantidad)
-                } else {
-                    it
-                }
+    override suspend fun cargarCarrito(): Result<Unit> {
+        return try {
+            val response = apiService.getCarrito()
+            val listItems = response.items.map { dto ->
+                val oferta = productoRepository.obtenerOfertaPorId(dto.loteId.toString()).getOrNull()
+                val cantidadRestante = oferta?.lote?.cantidadRestante
+                ItemCarrito(
+                    id = dto.id.toString(),
+                    loteId = dto.loteId.toString(),
+                    nombreProducto = dto.nombreProducto ?: (oferta?.producto?.nombre ?: "Producto"),
+                    imagenUrl = dto.imagenUrl ?: oferta?.producto?.imagenUrl,
+                    cantidad = dto.cantidad,
+                    precioAplicado = dto.precioAplicado.toDoubleOrNull() ?: (oferta?.lote?.precioDescuento ?: 0.0),
+                    subtotal = dto.subtotal?.toDoubleOrNull() ?: ((dto.precioAplicado.toDoubleOrNull() ?: 0.0) * dto.cantidad),
+                    cantidadRestanteAprox = cantidadRestante
+                )
             }
-        } else {
-            val cantidadLimitada = minOf(cantidad, oferta.lote.cantidadRestante)
-            _items.value = itemsActuales + ItemCarrito(oferta = oferta, cantidad = cantidadLimitada)
-        }
-
-        return AgregarItemResult.Agregado
-    }
-
-    override suspend fun confirmarCambioTienda(oferta: OfertaProducto, cantidad: Int) {
-        val cantidadLimitada = minOf(cantidad, oferta.lote.cantidadRestante)
-        _items.value = listOf(ItemCarrito(oferta = oferta, cantidad = cantidadLimitada))
-    }
-
-    override suspend fun actualizarCantidad(loteId: String, nuevaCantidad: Int) {
-        val itemsActuales = _items.value
-        _items.value = itemsActuales.map { item ->
-            if (item.oferta.lote.id == loteId) {
-                val cantidadValidada = nuevaCantidad.coerceIn(1, item.oferta.lote.cantidadRestante)
-                item.copy(cantidad = cantidadValidada)
+            _items.value = listItems
+            Result.success(Unit)
+        } catch (e: HttpException) {
+            val message = if (e.code() == 409) {
+                "Stock insuficiente o no se pudo completar la operación"
             } else {
-                item
+                "Error del servidor, intenta de nuevo"
             }
+            Result.failure(Exception(message, e))
+        } catch (e: Exception) {
+            Result.failure(Exception("Error de conexión, intenta de nuevo", e))
         }
     }
 
-    override suspend fun eliminarItem(loteId: String) {
-        _items.value = _items.value.filter { it.oferta.lote.id != loteId }
+    override suspend fun agregarItem(loteId: String, cantidad: Int): Result<Unit> {
+        return try {
+            val loteIdInt = loteId.toIntOrNull() ?: return Result.failure(Exception("ID de lote inválido"))
+            apiService.agregarAlCarrito(CarritoItemCreateDto(loteId = loteIdInt, cantidad = cantidad))
+            cargarCarrito()
+        } catch (e: HttpException) {
+            val message = if (e.code() == 409) {
+                "Stock insuficiente o no se pudo completar la operación"
+            } else {
+                "Error del servidor, intenta de nuevo"
+            }
+            Result.failure(Exception(message, e))
+        } catch (e: Exception) {
+            Result.failure(Exception("Error de conexión, intenta de nuevo", e))
+        }
     }
 
-    override suspend fun vaciarCarrito() {
-        _items.value = emptyList()
+    override suspend fun actualizarCantidad(itemId: String, nuevaCantidad: Int): Result<Unit> {
+        return try {
+            val itemIdInt = itemId.toIntOrNull() ?: return Result.failure(Exception("ID de item inválido"))
+            apiService.actualizarItemCarrito(itemIdInt, CarritoItemUpdateDto(cantidad = nuevaCantidad))
+            cargarCarrito()
+        } catch (e: HttpException) {
+            val message = if (e.code() == 409) {
+                "Stock insuficiente o no se pudo completar la operación"
+            } else {
+                "Error del servidor, intenta de nuevo"
+            }
+            Result.failure(Exception(message, e))
+        } catch (e: Exception) {
+            Result.failure(Exception("Error de conexión, intenta de nuevo", e))
+        }
+    }
+
+    override suspend fun eliminarItem(itemId: String): Result<Unit> {
+        return try {
+            val itemIdInt = itemId.toIntOrNull() ?: return Result.failure(Exception("ID de item inválido"))
+            apiService.eliminarItemCarrito(itemIdInt)
+            cargarCarrito()
+        } catch (e: HttpException) {
+            val message = if (e.code() == 409) {
+                "Stock insuficiente o no se pudo completar la operación"
+            } else {
+                "Error del servidor, intenta de nuevo"
+            }
+            Result.failure(Exception(message, e))
+        } catch (e: Exception) {
+            Result.failure(Exception("Error de conexión, intenta de nuevo", e))
+        }
+    }
+
+    override suspend fun vaciarCarrito(): Result<Unit> {
+        return try {
+            apiService.vaciarCarritoRemoto()
+            _items.value = emptyList()
+            Result.success(Unit)
+        } catch (e: HttpException) {
+            val message = if (e.code() == 409) {
+                "Stock insuficiente o no se pudo completar la operación"
+            } else {
+                "Error del servidor, intenta de nuevo"
+            }
+            Result.failure(Exception(message, e))
+        } catch (e: Exception) {
+            Result.failure(Exception("Error de conexión, intenta de nuevo", e))
+        }
     }
 }

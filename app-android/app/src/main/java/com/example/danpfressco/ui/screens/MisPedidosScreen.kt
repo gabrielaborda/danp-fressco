@@ -183,6 +183,7 @@ private fun PedidoCard(item: PedidoItemUiState) {
 private fun EstadoChip(estado: EstadoPedido) {
     val (label, containerColor) = when (estado) {
         EstadoPedido.PENDIENTE -> "Pendiente" to MaterialTheme.colorScheme.tertiaryContainer
+        EstadoPedido.CONFIRMADO -> "Confirmado" to MaterialTheme.colorScheme.secondaryContainer
         EstadoPedido.CANCELADO -> "Cancelado" to MaterialTheme.colorScheme.errorContainer
         EstadoPedido.ENTREGADO -> "Entregado" to MaterialTheme.colorScheme.primaryContainer
     }

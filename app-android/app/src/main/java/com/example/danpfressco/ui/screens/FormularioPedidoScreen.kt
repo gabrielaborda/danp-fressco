@@ -37,7 +37,6 @@ fun FormularioPedidoScreen(
     val uiState by viewModel.uiState.collectAsState()
     val itemsCarrito by viewModel.itemsCarrito.collectAsState()
 
-    // Gatillo de navegación — cuando los datos son válidos, navega a PasarelaPago
     LaunchedEffect(uiState.listoParaPago) {
         if (uiState.listoParaPago) {
             onNavegaToPasarela(
@@ -83,7 +82,6 @@ fun FormularioPedidoScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
 
-            // ─── Sección: Resumen del carrito ─────────────────────────────────
             Text(
                 text = "Tu pedido",
                 style = MaterialTheme.typography.titleMedium,
@@ -116,19 +114,19 @@ fun FormularioPedidoScreen(
                             ) {
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text(
-                                        text = item.oferta.producto.nombre,
+                                        text = item.nombreProducto,
                                         style = MaterialTheme.typography.bodyMedium,
                                         fontWeight = FontWeight.SemiBold,
                                         maxLines = 2
                                     )
                                     Text(
-                                        text = "${formatearPrecio(item.oferta.lote.precioDescuento)} × ${item.cantidad}",
+                                        text = "${formatearPrecio(item.precioAplicado)} × ${item.cantidad}",
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
                                 Text(
-                                    text = formatearPrecio(item.oferta.lote.precioDescuento * item.cantidad),
+                                    text = formatearPrecio(item.subtotal),
                                     style = MaterialTheme.typography.bodyMedium,
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.primary
@@ -152,7 +150,7 @@ fun FormularioPedidoScreen(
                             )
                             Text(
                                 text = formatearPrecio(
-                                    itemsCarrito.sumOf { it.oferta.lote.precioDescuento * it.cantidad }
+                                    itemsCarrito.sumOf { it.precioAplicado * it.cantidad }
                                 ),
                                 style = MaterialTheme.typography.titleSmall,
                                 fontWeight = FontWeight.ExtraBold,
@@ -165,7 +163,6 @@ fun FormularioPedidoScreen(
 
             HorizontalDivider()
 
-            // ─── Sección: Datos de contacto ───────────────────────────────────
             Text(
                 text = "Datos de contacto",
                 style = MaterialTheme.typography.titleMedium,
@@ -209,7 +206,6 @@ fun FormularioPedidoScreen(
                 shape = RoundedCornerShape(12.dp)
             )
 
-            // ─── Dropdown de franjas horarias ─────────────────────────────────
             var dropdownExpanded by remember { mutableStateOf(false) }
 
             ExposedDropdownMenuBox(
@@ -259,7 +255,6 @@ fun FormularioPedidoScreen(
                 }
             }
 
-            // ─── Mensaje de error global ──────────────────────────────────────
             if (uiState.errorMessage != null) {
                 Card(
                     colors = CardDefaults.cardColors(
@@ -279,7 +274,6 @@ fun FormularioPedidoScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // ─── Botón ir al pago ─────────────────────────────────────────────
             Button(
                 onClick = viewModel::confirmarFormulario,
                 enabled = !uiState.isLoading,

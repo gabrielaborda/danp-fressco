@@ -4,7 +4,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.danpfressco.data.model.OfertaProducto
-import com.example.danpfressco.data.repository.AgregarItemResult
 import com.example.danpfressco.data.repository.CarritoRepository
 import com.example.danpfressco.data.repository.ProductoRepository
 import com.example.danpfressco.ui.state.ProductosUiState
@@ -70,48 +69,23 @@ class ProductosViewModel @Inject constructor(
 
     fun agregarAlCarrito(oferta: OfertaProducto, cantidad: Int) {
         viewModelScope.launch {
-            when (val result = carritoRepository.agregarItem(oferta, cantidad)) {
-                is AgregarItemResult.Agregado -> {
+            val result = carritoRepository.agregarItem(oferta.lote.id, cantidad)
+            result.fold(
+                onSuccess = {
                     _snackbarMessage.emit("$cantidad unidades agregadas")
+                },
+                onFailure = { error ->
+                    _snackbarMessage.emit(error.message ?: "No se pudo agregar el producto al carrito")
                 }
-                is AgregarItemResult.ConflictoTienda -> {
-                    _uiState.update {
-                        it.copy(
-                            mostrarDialogoCambioTienda = true,
-                            tiendaEnCarrito = result.tiendaActual,
-                            tiendaNueva = result.tiendaNueva,
-                            ofertaPendiente = oferta,
-                            cantidadPendiente = cantidad
-                        )
-                    }
-                }
-            }
+            )
         }
     }
 
     fun confirmarCambioTienda() {
-        val estado = _uiState.value
-        val oferta = estado.ofertaPendiente ?: return
-        viewModelScope.launch {
-            carritoRepository.confirmarCambioTienda(oferta, estado.cantidadPendiente)
-            _uiState.update {
-                it.copy(
-                    mostrarDialogoCambioTienda = false,
-                    ofertaPendiente = null,
-                    cantidadPendiente = 0
-                )
-            }
-            _snackbarMessage.emit("${estado.cantidadPendiente} unidades agregadas")
-        }
+        // Obsoleto en Fase 5, se mantiene firma por compatibilidad con UI antigua si existiese
     }
 
     fun cancelarCambioTienda() {
-        _uiState.update {
-            it.copy(
-                mostrarDialogoCambioTienda = false,
-                ofertaPendiente = null,
-                cantidadPendiente = 0
-            )
-        }
+        // Obsoleto en Fase 5, se mantiene firma por compatibilidad con UI antigua si existiese
     }
 }

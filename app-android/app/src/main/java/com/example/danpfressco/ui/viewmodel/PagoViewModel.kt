@@ -22,15 +22,6 @@ import javax.inject.Inject
 
 /**
  * ViewModel de la pantalla PasarelaPago.
- *
- * Depende únicamente de interfaces ([PagoRepository], [PedidoRepository],
- * [CarritoRepository]) — nunca de implementaciones concretas (DIP).
- *
- * Recibe los datos de contacto del pedido vía [SavedStateHandle] (argumentos
- * de navegación) y calcula el monto sumando los precios actuales del carrito.
- *
- * Flujo de pago exitoso:
- *   procesarPago() → crearPedido() → vaciarCarrito() → EstadoPago.Exito
  */
 @HiltViewModel
 class PagoViewModel @Inject constructor(
@@ -40,7 +31,6 @@ class PagoViewModel @Inject constructor(
     private val carritoRepository: CarritoRepository
 ) : ViewModel() {
 
-    // Argumentos de navegación — pasados desde FormularioPedidoScreen
     val nombreContacto: String = checkNotNull(savedStateHandle["nombre"])
     val telefonoContacto: String = checkNotNull(savedStateHandle["telefono"])
     val horarioRecogida: String = checkNotNull(savedStateHandle["horario"])
@@ -48,7 +38,6 @@ class PagoViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(PagoUiState())
     val uiState: StateFlow<PagoUiState> = _uiState.asStateFlow()
 
-    /** Items vigentes del carrito — la fuente de verdad del monto a cobrar. */
     val itemsCarrito: StateFlow<List<ItemCarrito>> = carritoRepository.items
         .stateIn(
             scope = viewModelScope,
@@ -56,13 +45,10 @@ class PagoViewModel @Inject constructor(
             initialValue = emptyList()
         )
 
-    // ─── Handlers de cambio de método y campos ───────────────────────────────
-
     fun onMetodoPagoChanged(metodo: MetodoPago) {
         _uiState.update {
             it.copy(
                 metodoPago = metodo,
-                // Limpiar errores al cambiar método
                 numeroTarjetaError = null,
                 vencimientoError = null,
                 cvvError = null,
@@ -72,7 +58,6 @@ class PagoViewModel @Inject constructor(
     }
 
     fun onNumeroTarjetaChanged(numero: String) {
-        // Solo dígitos, máximo 16
         val limpio = numero.filter { it.isDigit() }.take(16)
         _uiState.update {
             it.copy(
@@ -83,7 +68,6 @@ class PagoViewModel @Inject constructor(
     }
 
     fun onVencimientoChanged(vencimiento: String) {
-        // Formato MM/YY automático
         val digitos = vencimiento.filter { it.isDigit() }.take(4)
         val formateado = if (digitos.length > 2) {
             "${digitos.take(2)}/${digitos.drop(2)}"
@@ -108,20 +92,9 @@ class PagoViewModel @Inject constructor(
         }
     }
 
-    // ─── Confirmación del pago ───────────────────────────────────────────────
-
-    /**
-     * Ejecuta el flujo completo de pago:
-     * 1. Valida campos de tarjeta si aplica.
-     * 2. Calcula el monto desde los ítems actuales del carrito.
-     * 3. Delega el procesamiento a [PagoRepository].
-     * 4. Si éxito: crea el pedido y vacía el carrito.
-     * 5. Actualiza [estadoPago] según el resultado.
-     */
     fun confirmarPago() {
         val current = _uiState.value
 
-        // Validación de campos de tarjeta (solo formato básico, no Luhn)
         if (current.metodoPago == MetodoPago.TARJETA) {
             val numError = if (current.numeroTarjeta.length < 13) "Ingresa un número de tarjeta válido" else null
             val vencError = if (!current.vencimiento.matches(Regex("\\d{2}/\\d{2}"))) "Formato MM/AA" else null
@@ -142,9 +115,8 @@ class PagoViewModel @Inject constructor(
         _uiState.update { it.copy(estadoPago = EstadoPago.Procesando) }
 
         viewModelScope.launch {
-            // Ajuste #2: monto calculado desde el carrito vigente
             val items = itemsCarrito.value
-            val monto = items.sumOf { it.oferta.lote.precioDescuento * it.cantidad }
+            val monto = items.sumOf { it.precioAplicado * it.cantidad }
 
             val resultado = pagoRepository.procesarPago(
                 metodo = current.metodoPago,
@@ -153,9 +125,7 @@ class PagoViewModel @Inject constructor(
 
             resultado.fold(
                 onSuccess = {
-                    // Pago exitoso → crear pedido → vaciar carrito
                     val pedidoResult = pedidoRepository.crearPedido(
-                        items = items,
                         nombreContacto = nombreContacto,
                         telefonoContacto = telefonoContacto,
                         horarioRecogida = horarioRecogida
@@ -190,7 +160,6 @@ class PagoViewModel @Inject constructor(
         }
     }
 
-    /** Permite al usuario reintentar después de un error, volviendo a Idle. */
     fun reintentar() {
         _uiState.update { it.copy(estadoPago = EstadoPago.Idle) }
     }

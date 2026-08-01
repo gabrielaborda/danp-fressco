@@ -39,7 +39,7 @@ fun PasarelaPagoScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val itemsCarrito by viewModel.itemsCarrito.collectAsState()
-    val monto = itemsCarrito.sumOf { it.oferta.lote.precioDescuento * it.cantidad }
+    val monto = itemsCarrito.sumOf { it.precioAplicado * it.cantidad }
     val procesando = uiState.estadoPago == EstadoPago.Procesando
 
     // Bloquear el botón atrás mientras se procesa el pago

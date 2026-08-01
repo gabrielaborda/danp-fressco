@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 import javax.inject.Inject
@@ -26,6 +27,16 @@ private val FECHA_FORMATTER = DateTimeFormatter.ofPattern("d MMM, HH:mm", Locale
 class MisPedidosViewModel @Inject constructor(
     private val pedidoRepository: PedidoRepository
 ) : ViewModel() {
+
+    init {
+        cargarPedidos()
+    }
+
+    fun cargarPedidos() {
+        viewModelScope.launch {
+            pedidoRepository.cargarPedidos()
+        }
+    }
 
     val uiState: StateFlow<MisPedidosUiState> = pedidoRepository.pedidos
         .map { lista ->

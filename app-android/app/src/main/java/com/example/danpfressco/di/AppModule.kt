@@ -51,14 +51,17 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideCarritoRepository(): CarritoRepository {
-        return CarritoRepositoryImpl()
+    fun provideCarritoRepository(
+        apiService: ApiService,
+        productoRepository: ProductoRepository
+    ): CarritoRepository {
+        return CarritoRepositoryImpl(apiService, productoRepository)
     }
 
     @Provides
     @Singleton
-    fun providePedidoRepository(): PedidoRepository {
-        return PedidoRepositoryImpl()
+    fun providePedidoRepository(apiService: ApiService): PedidoRepository {
+        return PedidoRepositoryImpl(apiService)
     }
 
     @Provides
